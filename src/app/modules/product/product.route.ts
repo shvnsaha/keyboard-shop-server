@@ -13,5 +13,11 @@ router
   )
   .get('/', ProductControllers.getAllProducts)
   .get('/:id', ProductControllers.getSingleProduct)
+  .delete('/:id',ProductControllers.deleteProduct)
+  .put(
+    '/:id',
+    validateRequest(ProductValidations.updateProductValidationSchema),
+    ProductControllers.updateProduct,
+  )
 
 export const ProductRoutes = router
