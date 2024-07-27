@@ -8,11 +8,25 @@ const createProductIntoDB = async (payload: TProduct) => {
   return result
 }
 
-const getAllProductsFromDB = async () => {
-  //   let sortObj:Record<string,any> ={};
-  //  sortObj.createdAt = 'desc'
-
-  const result = await Product.find({ isDeleted: false })
+const getAllProductsFromDB = async (query: Record<string, unknown>) => {
+  
+  const sort = query?.sort as string || '-createdAt'
+  const searchTerm = query?.searchTerm as string || ''
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+  const min = Number(query.min) || 0;
+  const max = Number(query.max) || 2000;
+  const skip = (page-1)*limit;
+  const search = Product.find({
+    $or: [
+      { name: { $regex: new RegExp(searchTerm, 'i') } },
+      { brand: { $regex: new RegExp(searchTerm, 'i') } },
+    ],
+  })
+  const price = search.find({
+    price: { $gte: min, $lte: max },
+  })
+  const result = await price.find({ isDeleted: false }).sort(sort).skip(skip).limit(limit)
   return result
 }
 

@@ -14,12 +14,11 @@ const createProduct = catchAsync(async (req, res) => {
 })
 
 const getAllProducts = catchAsync(async (req, res) => {
-  const result = await ProductServices.getAllProductsFromDB()
-  const roomArr = result.length
+  const result = await ProductServices.getAllProductsFromDB(req.query)
   sendResponse(res, {
-    statusCode: roomArr ? httpStatus.OK : httpStatus.NOT_FOUND,
-    success: roomArr ? true : false,
-    message: roomArr ? 'Products retrieved successfully' : 'No Data Found',
+    statusCode:   httpStatus.OK,
+    success:  true ,
+    message:  'Products retrieved successfully',
     data: result,
   })
 })
