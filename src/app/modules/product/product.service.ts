@@ -2,6 +2,7 @@ import httpStatus from 'http-status'
 import { TProduct } from './product.interface'
 import { Product } from './product.model'
 import AppError from '../../errors/AppError'
+import mongoose from 'mongoose'
 
 const createProductIntoDB = async (payload: TProduct) => {
   const result = await Product.create(payload)
@@ -17,6 +18,15 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
   const min = Number(query.min) || 0;
   const max = Number(query.max) || 2000;
   const skip = (page-1)*limit;
+  if(query?.id){
+   const objectIdArray = (query?.id as string).split(',').map(id => new mongoose.Types.ObjectId(id))
+   const result = await Product.find({ _id: { $in: objectIdArray } })
+   const total = 10;
+   return{
+    result,
+    total
+   }
+  }
   const search = Product.find({
     $or: [
       { name: { $regex: new RegExp(searchTerm, 'i') } },
@@ -27,7 +37,18 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
     price: { $gte: min, $lte: max },
   })
   const result = await price.find({ isDeleted: false }).sort(sort).skip(skip).limit(limit)
-  return result
+   const total = await Product.countDocuments({
+    $or: [
+      { name: { $regex: new RegExp(searchTerm, 'i') } },
+      { brand: { $regex: new RegExp(searchTerm, 'i') } },
+    ],
+    price: { $gte: min, $lte: max },
+    isDeleted: false,
+  } )
+
+  return {
+    result,total
+  }
 }
 
 const getSingleProductFromDB = async (id: string) => {
