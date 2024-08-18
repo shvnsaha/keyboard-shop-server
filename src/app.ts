@@ -7,7 +7,7 @@ const app: Application = express()
 
 // parsers:
 app.use(express.json())
-app.use(cors({ origin: ['http://localhost:5173'] }))
+app.use(cors({ origin: ['http://localhost:5173','https://keyboard-shop-client-seven.vercel.app'] }))
 
 app.get('/', (req, res) => {
   res.send('Welcome to mechanical store server')
@@ -15,6 +15,7 @@ app.get('/', (req, res) => {
 
 // application routes
 app.use('/api', router)
+
 
 app.use(globalErrorHandler)
 

@@ -14,18 +14,19 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
   const sort = query?.sort as string || '-createdAt'
   const searchTerm = query?.searchTerm as string || ''
   const page = Number(query.page) || 1;
-  const limit = Number(query.limit) || 10;
+  const limit = Number(query.limit) || 1;
   const min = Number(query.min) || 0;
   const max = Number(query.max) || 2000;
   const skip = (page-1)*limit;
   if(query?.id){
    const objectIdArray = (query?.id as string).split(',').map(id => new mongoose.Types.ObjectId(id))
    const result = await Product.find({ _id: { $in: objectIdArray } })
-   const total = 10;
+   const total = await Product.countDocuments()
    return{
     result,
     total
    }
+  
   }
   const search = Product.find({
     $or: [
